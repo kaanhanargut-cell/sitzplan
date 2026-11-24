@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect x=%223%22 y=%223%22 width=%2218%22 height=%224%22 rx=%221%22 fill=%22%232F5446%22/%3E%3Crect x=%224%22 y=%2211%22 width=%226%22 height=%224%22 rx=%221%22 fill=%22%23C2A877%22/%3E%3Crect x=%2214%22 y=%2211%22 width=%226%22 height=%224%22 rx=%221%22 fill=%22%23C2A877%22/%3E%3Crect x=%224%22 y=%2218%22 width=%226%22 height=%223%22 rx=%221%22 fill=%22%23C2A877%22/%3E%3Crect x=%2214%22 y=%2218%22 width=%226%22 height=%223%22 rx=%221%22 fill=%22%23C2A877%22/%3E%3C/svg%3E">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Sitzplan</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -629,8 +630,8 @@ function renderTop(){
     !S.readOnly ? h("button",{class:"btn ghost",title:t("newClass"),"aria-label":t("newClass"),onclick:newClass}, svg(IC.plus)) : null) : null;
   const tabs = classes.length ? h("div",{class:"tabs",role:"tablist"}, ["plan","class","rules","room"].map(k=>h("button",{role:"tab","aria-selected":String(S.tab===k), onclick:()=>{ S.tab=k; S.sel=null; S.confirm=null; if(k==="room") S.curRoom = cls()?.roomId || S.curRoom; render(); }, text:t({plan:"tabPlan",class:"tabClass",rules:"tabRules",room:"tabRoom"}[k])}))) : null;
   const lang = h("div",{class:"lang"}, ["de","en"].map(l=>h("button",{"aria-pressed":String(S.lang===l), text:l.toUpperCase(), onclick:()=>{ S.lang=l; store.set("sp-lang",l); render(); }})));
-  top.replaceChildren(brand, S.gate?null:pick, S.gate?null:tabs, h("div",{class:"spacer"}), S.gate?null:h("span",{class:"status "+st[0]}, h("span",{class:"dot"}), t(st[1])), lang,
-    S.user ? h("button",{class:"btn ghost",style:"min-height:32px;padding:4px 8px",title:S.user,onclick:signOut,text:t("logout")}) : null);
+  top.replaceChildren(...[brand, S.gate?null:pick, S.gate?null:tabs, h("div",{class:"spacer"}), S.gate?null:h("span",{class:"status "+st[0]}, h("span",{class:"dot"}), t(st[1])), lang,
+    S.user ? h("button",{class:"btn ghost",style:"min-height:32px;padding:4px 8px",title:S.user,onclick:signOut,text:t("logout")}) : null].filter(Boolean));
 }
 function renderBanner(){
   const slot = document.getElementById("bannerSlot");
