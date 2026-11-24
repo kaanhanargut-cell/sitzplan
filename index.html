@@ -41,6 +41,10 @@ html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.45}
 *{box-sizing:border-box}
 button,input,select,textarea{font:inherit;color:inherit}
+select,input,textarea{font-size:16px}
+html{touch-action:manipulation;-webkit-text-size-adjust:100%}
+button,.cell,.chip,.code,.tool{-webkit-tap-highlight-color:transparent}
+.grid,.pool,.chip,.code,.dragGhost{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 button{cursor:pointer}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.15}
@@ -67,7 +71,7 @@ textarea{width:100%;resize:vertical}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--panel);
   border-radius:var(--r);padding:8px 12px;font-weight:700;min-height:40px;text-align:left}
-.btn:hover{border-color:var(--muted)}
+@media (hover:hover){.btn:hover{border-color:var(--muted)}}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.danger{color:var(--danger)}
 .btn.danger.solid{background:var(--danger);color:var(--panel);border-color:var(--danger)}
@@ -98,7 +102,8 @@ label.f > *{color:var(--ink);font-weight:400}
 .chip{touch-action:none;user-select:none;-webkit-user-select:none;display:inline-flex;align-items:center;justify-content:center;
   min-width:44px;height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--desk-line);background:var(--desk);font-weight:700;letter-spacing:.02em;cursor:grab}
 .chip.sel{outline:3px solid var(--accent);outline-offset:1px}
-.ghost{position:fixed;z-index:50;pointer-events:none;transform:translate(-50%,-60%) rotate(-3deg);box-shadow:0 8px 20px rgb(0 0 0 / .25);cursor:grabbing}
+.dragGhost{position:fixed;z-index:50;pointer-events:none;transform:translate(-50%,-60%) rotate(-3deg);box-shadow:0 8px 20px rgb(0 0 0 / .25);cursor:grabbing}
+.dragGhost.touch{transform:translate(-50%,-140%) rotate(-3deg) scale(1.2)}
 
 /* classroom grid */
 .frontLabel{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
@@ -127,12 +132,12 @@ label.f > *{color:var(--ink);font-weight:400}
   width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:grab;padding:0 2px;text-align:center;line-height:1.05;overflow-wrap:anywhere}
 .pin{position:absolute;top:2px;right:3px;width:max(10px,calc(var(--cell)*.2));height:max(10px,calc(var(--cell)*.2));color:var(--lock)}
 .seat.sel .fill{outline:3px solid var(--accent);outline-offset:-1px;z-index:2}
-.seat.over .fill{outline:3px dashed var(--accent);outline-offset:-1px;z-index:2}
+.seat.over .fill{outline:4px dashed var(--accent);outline-offset:-2px;z-index:2;background:var(--accent-soft)}
 .seat.locked .code{cursor:not-allowed}
 .grid.plan .seat:not(.taken) .fill{background:color-mix(in srgb,var(--desk) 55%,var(--floor))}
 .grid.edit .cell{cursor:crosshair;touch-action:none}
 .grid.edit .floor .fill{border:1px dashed var(--line)}
-.grid.edit .floor:hover .fill{background:var(--accent-soft)}
+@media (hover:hover){.grid.edit .floor:hover .fill{background:var(--accent-soft)}}
 
 /* room editor tools */
 .tools{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -163,7 +168,7 @@ table.attrs td.c{font-weight:700;font-size:16px}
 .tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--ink)}
 .tag.apart{background:color-mix(in srgb,var(--danger) 16%,var(--panel))}
 .iconBtn{border:0;background:transparent;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;color:var(--muted)}
-.iconBtn:hover{background:var(--bg);color:var(--ink)}
+@media (hover:hover){.iconBtn:hover{background:var(--bg);color:var(--ink)}}
 .result{border:1px solid var(--line);border-radius:var(--r);padding:10px;font-size:13px;display:flex;flex-direction:column;gap:4px}
 .result.ok{border-color:var(--ok);color:var(--ok);font-weight:700}
 .result.bad{border-color:var(--lock)}
@@ -191,7 +196,18 @@ table.attrs td.c{font-weight:700;font-size:16px}
 .presentHead h1{font-size:clamp(26px,4vw,48px)}
 .presentHead .meta{font-size:clamp(14px,1.6vw,20px)}
 
-@media (max-width:760px){
+@media (pointer:coarse){
+  .btn{min-height:44px}
+  .chip{height:44px;min-width:54px;font-size:17px}
+  .seg button{min-width:44px;min-height:44px}
+  .stepper button{width:44px;height:44px}
+  .iconBtn{width:44px;height:44px}
+  .tool{min-height:44px}
+  .tabs button{padding:9px 14px}
+  .lang button{padding:8px 12px}
+  .check input{width:24px;height:24px}
+}
+@media (max-width:900px){
   .app{height:auto;min-height:100%}
   .main{grid-template-columns:1fr}
   .side{order:2;border-right:0;border-top:1px solid var(--line);overflow:visible}
@@ -544,7 +560,7 @@ function fitGrid(){
     const host = g.closest(".stage"); if(!host) continue;
     const cols=+g.dataset.cols, rows=+g.dataset.rows, max=+g.dataset.max;
     const pw = host.clientWidth - 64, ph = host.clientHeight - 90;
-    const narrow = window.innerWidth <= 760 && !g.closest(".present");
+    const narrow = window.innerWidth <= 900 && !g.closest(".present");
     let c = narrow ? pw/cols : Math.min(pw/cols, ph/rows);
     c = Math.max(narrow?30:34, Math.min(max, Math.floor(c)));
     g.style.setProperty("--cell", c+"px");
@@ -558,40 +574,69 @@ document.addEventListener("pointerdown", e => {
   if(e.button>0) return;
   const codeEl = e.target.closest(".code,.chip");
   const gridEdit = e.target.closest(".grid.edit .cell");
-  if(gridEdit && !S.readOnly){ e.preventDefault(); startPaint(gridEdit.dataset.cell); return; }
+  if(gridEdit && !S.readOnly){ e.preventDefault(); capture(e); startPaint(gridEdit.dataset.cell); return; }
   if(!codeEl || S.readOnly || S.present) return;
   const sid = codeEl.dataset.sid; if(!sid) return;
-  drag = {sid, x:e.clientX, y:e.clientY, el:codeEl, ghost:null, over:null, id:e.pointerId};
+  capture(e);
+  drag = {sid, x:e.clientX, y:e.clientY, lx:e.clientX, ly:e.clientY, el:codeEl, cell:codeEl.closest("[data-cell]")?.dataset.cell || null, ghost:null, over:null, id:e.pointerId, touch:e.pointerType!=="mouse"};
 });
+/* keep the pointer on a stable element: on iPad, re-rendering the touched node would otherwise end the gesture */
+function capture(e){ try{ document.body.setPointerCapture(e.pointerId); }catch(err){} }
+let scrollRaf = 0;
+function autoScroll(){
+  scrollRaf = 0; if(!drag || !drag.ghost) return;
+  const edge = 70, step = 16, {lx:x, ly:y} = drag; let moved = false;
+  const st = document.getElementById("stage");
+  if(st && st.scrollHeight > st.clientHeight + 2){
+    const r = st.getBoundingClientRect();
+    if(x>r.left && x<r.right && y>r.top && y<r.bottom){
+      const dy = y<r.top+edge ? -step : y>r.bottom-edge ? step : 0, dx = x<r.left+edge ? -step : x>r.right-edge ? step : 0;
+      if(dx||dy){ const b = st.scrollTop+st.scrollLeft; st.scrollBy(dx,dy); moved = moved || (st.scrollTop+st.scrollLeft)!==b; }
+    }
+  }
+  const wy = y<edge ? -step : y>innerHeight-edge ? step : 0;
+  if(wy){ const b = scrollY; scrollBy(0,wy); moved = moved || scrollY!==b; }
+  if(moved){ markOver(x,y); scrollRaf = requestAnimationFrame(autoScroll); }
+}
+function markOver(x,y){
+  const over = dropTarget(x,y);
+  if(drag.over && drag.over!==over) drag.over.classList.remove("over");
+  if(over) over.classList.add("over"); drag.over = over;
+}
 document.addEventListener("pointermove", e => {
   if(S.paint){ const el = document.elementFromPoint(e.clientX,e.clientY)?.closest(".grid.edit .cell"); if(el) paintAt(el.dataset.cell); return; }
   if(!drag || e.pointerId!==drag.id) return;
   if(!drag.ghost){
     if(Math.hypot(e.clientX-drag.x, e.clientY-drag.y) < 6) return;
     const c = cls(); if((c.locked||[]).includes(drag.sid)){ toast(t("pinnedMsg")); drag=null; return; }
-    drag.ghost = h("div",{class:"chip ghost", text: drag.el.textContent}); document.body.append(drag.ghost);
+    drag.ghost = h("div",{class:"chip dragGhost"+(drag.touch?" touch":""), text: drag.el.textContent}); document.body.append(drag.ghost);
   }
   e.preventDefault();
+  drag.lx = e.clientX; drag.ly = e.clientY;
   drag.ghost.style.left = e.clientX+"px"; drag.ghost.style.top = e.clientY+"px";
-  const over = dropTarget(e.clientX,e.clientY);
-  if(drag.over && drag.over!==over) drag.over.classList.remove("over");
-  if(over){ over.classList.add("over"); } drag.over = over;
+  markOver(e.clientX, e.clientY);
+  if(!scrollRaf) scrollRaf = requestAnimationFrame(autoScroll);
 }, {passive:false});
 function dropTarget(x,y){ const el = document.elementFromPoint(x,y); return el?.closest(".grid.plan .seat") || el?.closest(".pool") || null; }
 document.addEventListener("pointerup", e => {
   if(S.paint){ commitPaint(); return; }
   if(!drag || e.pointerId!==drag.id) return;
-  const d = drag; drag = null;
-  if(!d.ghost){ tapStudent(d.sid); return; }
+  const d = drag; drag = null; S.tapAt = Date.now();  // the browser's follow-up click must not act on this gesture again
+  if(!d.ghost){ tapStudent(d.sid, d.cell); return; }
   d.ghost.remove(); d.over?.classList.remove("over");
   const tgt = dropTarget(e.clientX,e.clientY);
+  if(S.deferred) render();
   if(!tgt) return;
   moveStudent(d.sid, tgt.classList.contains("pool") ? null : tgt.dataset.cell);
 });
 document.addEventListener("pointercancel", () => { if(drag?.ghost){ drag.ghost.remove(); drag.over?.classList.remove("over"); } drag=null; if(S.paint) commitPaint(); });
-function tapStudent(sid){ S.sel = (S.sel===sid) ? null : sid; render(); }
+function tapStudent(sid, cell){
+  if(S.sel && S.sel!==sid && cell){ moveStudent(S.sel, cell); return; }  // a student is selected: tapping an occupied seat swaps
+  S.sel = (S.sel===sid) ? null : sid; render();
+}
 document.addEventListener("click", e => {
   if(S.readOnly || S.present || !S.sel) return;
+  if(Date.now() - (S.tapAt||0) < 600) return;
   if(e.target.closest(".code,.chip,button,select,input")) return;
   const seatEl = e.target.closest(".grid.plan .seat"); const pool = e.target.closest(".pool");
   if(seatEl) moveStudent(S.sel, seatEl.dataset.cell); else if(pool) moveStudent(S.sel, null);
@@ -608,7 +653,7 @@ function commitPaint(){ const p = S.paint; S.paint=null; if(p?.changed){ p.room.
 /* ---------- render ---------- */
 function render(fromSnapshot){
   const ae = document.activeElement;
-  if(fromSnapshot && (S.paint || drag?.ghost || (ae && ae.closest("#main") && /INPUT|TEXTAREA/.test(ae.tagName)))){ S.deferred=true; renderTop(); return; }
+  if(fromSnapshot && (S.paint || drag ||(ae && ae.closest("#main") && /INPUT|TEXTAREA/.test(ae.tagName)))){ S.deferred=true; renderTop(); return; }
   S.deferred=false;
   if(S.curClass && !S.classes[S.curClass] && S.got.classes) S.curClass = null;
   if(!S.curClass){ const first = Object.values(S.classes).sort(byName)[0]; if(first) S.curClass=first.id; }
@@ -952,7 +997,7 @@ function sideRules(side){
 let wake = null;
 async function startPresent(){
   S.present = true; S.sel=null; render();
-  try{ await document.documentElement.requestFullscreen?.(); }catch(e){}
+  try{ const de = document.documentElement; await (de.requestFullscreen ? de.requestFullscreen() : de.webkitRequestFullscreen?.()); }catch(e){}
   try{ wake = await navigator.wakeLock?.request("screen"); }catch(e){}
 }
 function endPresent(){ S.present=false; try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){} try{ wake?.release(); }catch(e){} wake=null; render(); }
